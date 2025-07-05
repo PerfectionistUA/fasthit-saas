@@ -1,11 +1,16 @@
+# Авто-нормалізація кінців рядків
 * text=auto eol=lf
+# Ігноруємо зміни chmod
+* -text
 
+# Підсвітка diff у pull-request’ах
 *.blade.php diff=html
-*.css diff=css
-*.html diff=html
-*.md diff=markdown
-*.php diff=php
+*.css       diff=css
+*.html      diff=html
+*.md        diff=markdown
+*.php       diff=php
 
-/.github export-ignore
-CHANGELOG.md export-ignore
-.styleci.yml export-ignore
+# Файли, які не треба пакувати у ZIP-релізи GitHub
+/.github            export-ignore
+CHANGELOG.md        export-ignore
+.styleci.yml        export-ignore
