@@ -1,0 +1,92 @@
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  laravel:
+    runs-on: ubuntu-latest
+
+    services:
+      # Піднімаємо PostgreSQL як side-container
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: fast_hit
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: secret
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ---------- PHP ----------
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Set up PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_pgsql, intl, zip
+          coverage: none
+
+      - name: Install Composer deps
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      # ---------- Node ----------
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: ${{ runner.os }}-npm-
+
+      - name: Install JS deps & build assets
+        run: |
+          npm ci --ignore-scripts
+          npm run build
+
+      # ---------- Laravel prep ----------
+      - name: Copy .env & key
+        run: |
+          cp .env.example .env
+          php artisan key:generate --ansi --no-interaction
+
+      - name: Run migrations
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: fast_hit
+          DB_USERNAME: postgres
+          DB_PASSWORD: secret
+        run: php artisan migrate --force --no-interaction
+
+      # ---------- Static analysis / style ----------
+      - name: Pint (style lint)
+        run: ./vendor/bin/pint --test
+
+      # ---------- Tests ----------
+      - name: PHPUnit
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: fast_hit
+          DB_USERNAME: postgres
+          DB_PASSWORD: secret
+        run: php artisan test --parallel
