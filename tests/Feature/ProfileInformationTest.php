@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Laravel\Jetstream\Http\Livewire\UpdateProfileInformationForm;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -26,11 +28,17 @@ class ProfileInformationTest extends TestCase
     {
         $this->actingAs($user = User::factory()->create());
 
+        Notification::fake(); // Фейк для перевірки надсилання листа верифікації
+
         Livewire::test(UpdateProfileInformationForm::class)
             ->set('state', ['name' => 'Test Name', 'email' => 'test@example.com'])
             ->call('updateProfileInformation');
 
         $this->assertEquals('Test Name', $user->fresh()->name);
         $this->assertEquals('test@example.com', $user->fresh()->email);
+        $this->assertFalse($user->fresh()->hasVerifiedEmail());
+
+        // Перевірка, що лист верифікації був надісланий
+        Notification::assertSentTo($user, VerifyEmail::class);
     }
 }
