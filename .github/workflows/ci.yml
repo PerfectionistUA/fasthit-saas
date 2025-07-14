@@ -105,4 +105,3 @@ jobs:
           SEED_SUPER_ADMIN_PASSWORD: ${{ secrets.SEED_SUPER_ADMIN_PASSWORD }}
         run: |
           php artisan migrate --force --no-interaction --seed
-          php artisan tenant:artisan -- tenant-demo -- migrate --force --no-interaction
