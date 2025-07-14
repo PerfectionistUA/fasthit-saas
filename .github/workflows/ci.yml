@@ -1,5 +1,5 @@
 # .github/workflows/ci.yml
-name: CI
+name: "CI – PR #${{ github.event.number }} (→ ${{ github.event.pull_request.head.ref }})"
 
 on:
   push:
@@ -90,3 +90,18 @@ jobs:
           DB_USERNAME: postgres
           DB_PASSWORD: secret
         run: php artisan test --parallel
+
+      # ---------- Demo data ----------
+      - name: Set up application DB
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: fast_hit
+          DB_USERNAME: postgres
+          DB_PASSWORD: secret
+          SEED_SUPER_ADMIN_EMAIL: ${{ secrets.SEED_SUPER_ADMIN_EMAIL }}
+          SEED_SUPER_ADMIN_PASSWORD: ${{ secrets.SEED_SUPER_ADMIN_PASSWORD }}
+        run: |
+          php artisan migrate --force --no-interaction --seed
+          php artisan tenant:artisan -- tenant-demo -- migrate --force --no-interaction
