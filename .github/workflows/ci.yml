@@ -1,6 +1,4 @@
 # .github/workflows/ci.yml
-name: "CI – PR #${{ github.event.number }} (→ ${{ github.event.pull_request.head.ref }})"
-
 on:
   push:
     branches: [main]
