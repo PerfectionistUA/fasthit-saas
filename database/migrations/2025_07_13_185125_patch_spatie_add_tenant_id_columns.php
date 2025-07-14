@@ -16,29 +16,38 @@ return new class extends Migration
 
     public function up(): void
     {
-        /* ---------- 1. roles.tenant_id ---------------------------------- */
-        if (! Schema::hasColumn($this->rolesTable, 'tenant_id')) {
+        /* ---------- 1. roles.tenant_id ---------- */
+        if (Schema::hasTable($this->rolesTable) &&   // 🆕 guard
+            ! Schema::hasColumn($this->rolesTable, 'tenant_id')) {
+
             Schema::table($this->rolesTable, function (Blueprint $t) {
                 $t->unsignedBigInteger('tenant_id')->nullable()->after('id');
-                $t->index('tenant_id');
+                $t->index('tenant_id', 'roles_tenant_idx');
             });
         }
 
-        /* ---------- 2. pivot-таблиці ------------------------------------ */
+        /* ---------- 2. pivot-таблиці ------------- */
         foreach ($this->pivotTables as $table => $_) {
 
-            // a) якщо є team_id — перейменовуємо
-            if (Schema::hasColumn($table, 'team_id')
-                && ! Schema::hasColumn($table, 'tenant_id')) {
-                Schema::table($table, fn (Blueprint $t) => $t->renameColumn('team_id', 'tenant_id'));
+            if (! Schema::hasTable($table)) {
+                // таблиця ще не створена -> пропускаємо
+                continue;
             }
 
-            // b) якщо зовсім нема — додаємо
+            // a) team_id → tenant_id
+            if (Schema::hasColumn($table, 'team_id') &&
+                ! Schema::hasColumn($table, 'tenant_id')) {
+
+                Schema::table($table,
+                    fn (Blueprint $t) => $t->renameColumn('team_id', 'tenant_id'));
+            }
+
+            // b) зовсім нема tenant_id
             if (! Schema::hasColumn($table, 'tenant_id')) {
-                Schema::table($table, function (Blueprint $t) {
-                    $t->unsignedBigInteger('tenant_id')
-                        ->nullable()
+                Schema::table($table, function (Blueprint $t) use ($table) {
+                    $t->unsignedBigInteger('tenant_id')->nullable()
                         ->after('model_id');
+                    $t->index('tenant_id', $table.'_tenant_idx');
                 });
             }
         }

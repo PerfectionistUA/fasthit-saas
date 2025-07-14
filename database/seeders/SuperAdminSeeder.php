@@ -28,6 +28,6 @@ class SuperAdminSeeder extends Seeder
             $user->assignRole('super-admin');
         }
 
-        $this->command->info("Super-admin credentials  →  {$email} / {$password}");
+        $this->command->info("Super-admin credentials  →  {$email}");
     }
 }

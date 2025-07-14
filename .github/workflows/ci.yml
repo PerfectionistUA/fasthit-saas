@@ -1,5 +1,5 @@
 # .github/workflows/ci.yml
-name: CI
+name: "CI – PR #${{ github.event.number }} (→ ${{ github.event.pull_request.head.ref }})"
 
 on:
   push:
@@ -97,7 +97,7 @@ jobs:
           DB_CONNECTION: pgsql
           DB_HOST: 127.0.0.1
           DB_PORT: 5432
-          DB_DATABASE: fasthit
+          DB_DATABASE: fast_hit
           DB_USERNAME: postgres
           DB_PASSWORD: secret
           SEED_SUPER_ADMIN_EMAIL: ${{ secrets.SEED_SUPER_ADMIN_EMAIL }}
