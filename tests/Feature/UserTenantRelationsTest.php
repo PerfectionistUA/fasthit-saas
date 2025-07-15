@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UserTenantRelationsTest extends TestCase
@@ -13,7 +14,7 @@ class UserTenantRelationsTest extends TestCase
 
     // ... (існуючі тести для tenant_users, не повинно бути 'role')
 
-    /** @test */
+    #[Test]
     public function user_can_have_a_current_tenant(): void
     {
         $user = User::factory()->create();
@@ -30,7 +31,7 @@ class UserTenantRelationsTest extends TestCase
         $this->assertEquals($tenant1->id, $user->currentTenant->id);
     }
 
-    /** @test */
+    #[Test]
     public function current_tenant_is_nulled_on_tenant_soft_delete(): void
     {
         $user = User::factory()->create();

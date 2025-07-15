@@ -77,6 +77,17 @@ jobs:
           DB_PASSWORD: secret
         run: php artisan migrate --force --no-interaction
 
+      # ---------- Tenant UUIDs setup ----------
+      - name: Fill missing tenant UUIDs
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: fast_hit
+          DB_USERNAME: postgres
+          DB_PASSWORD: secret
+        run: php artisan tenants:generate-uuids --no-interaction --quiet
+
       # ---------- Static analysis / style ----------
       - name: Pint (style lint)
         run: ./vendor/bin/pint --test
