@@ -2,25 +2,39 @@
 
 namespace Database\Seeders;
 
+use App\Models\Tenant;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class TenantDemoSeeder extends Seeder
 {
     // database/seeders/TenantDemoSeeder.php
     public function run(): void
     {
-        $owner = \App\Models\User::factory()->create([
-            'email' => 'owner@demo.local',
-            'email_verified_at' => now(),
-        ]);
+        // Забезпечуємо, що запис існує і оновлюємо за потреби
+        // 1. Demo-owner (ідемпотентно)
+        $owner = User::updateOrCreate(
+            ['email' => 'owner@demo.local'],
+            [
+                'name' => 'Demo Owner',
+                'password' => Hash::make('password'),
+            ]
+        );
 
-        $tenant = \App\Models\Tenant::factory()->create([
-            'name' => 'Demo Company',
-            'domain' => 'demo.local',
-        ]);
+        // 2. Demo-tenant (ідемпотентно)
+        $tenant = Tenant::updateOrCreate(
+            ['domain' => 'demo.local'],               // ← ключ для «унікальності»
+            [
+                'name' => 'Demo Company',
+                'uuid' => $tenantUuid ?? Str::uuid(), // залиш старий, якщо вже був
+            ]
+        );
 
-        // звʼязок owner ↔ tenant
-        $tenant->users()->attach($owner->id, ['is_owner' => true]);
-        $owner->assignRole('organization-admin', $tenant->id);
+        // 3. Прив’язуємо власника до тенанта, якщо ще не прив’язаний
+        $tenant->users()->syncWithoutDetaching([
+            $owner->id => ['is_owner' => true],
+        ]);
     }
 }

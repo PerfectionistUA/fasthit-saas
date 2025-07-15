@@ -13,7 +13,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(CurrentTenantService::class,
+        $this->app->singleton(
+            CurrentTenantService::class,
             fn ($app) => new CurrentTenantService($app->make(Request::class))
         );
     }
