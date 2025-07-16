@@ -134,6 +134,11 @@ return [
     'teams' => true,
     'team_foreign_key' => 'tenant_id',
     /*
+     * «Команда» (tenant), яку вважаємо глобальною.
+     * Усі ролі/дозволи з таким tenant_id – глобальні.
+     */
+    'global_team_id' => (int) env('PERMISSION_GLOBAL_TEAM_ID', 0),
+    /*
      * The class to use to resolve the permissions team id
      */
     'team_resolver' => \Spatie\Permission\DefaultTeamResolver::class,
