@@ -10,7 +10,11 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         // глобальна роль
-        Role::firstOrCreate(['name' => 'super-admin', 'guard_name' => 'web']);
+        Role::firstOrCreate([
+            'name' => 'super-admin',
+            'guard_name' => 'web',
+            'tenant_id' => globalTeamId(),
+        ]);
 
         // шаблонні ролі для тенантів (tenant_id == null тут НЕ ставимо)
         foreach (['organization-admin', 'organization-member'] as $role) {

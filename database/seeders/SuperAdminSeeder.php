@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\PermissionRegistrar;          // ← імпорт
 
 class SuperAdminSeeder extends Seeder
 {
@@ -24,10 +25,16 @@ class SuperAdminSeeder extends Seeder
             ]
         );
 
+        /* ───── Увімкнули «глобальний tenant» ───── */
+        app(PermissionRegistrar::class)
+            ->setPermissionsTeamId(globalTeamId());   // helper із app/Support/helpers.php
+
+        /* ───── Призначили роль, якщо ще немає ───── */
         if (! $user->hasRole('super-admin')) {
-            $user->assignRole('super-admin');
+            $user->assignRole('super-admin');         // у pivot буде tenant_id = 0
         }
 
-        $this->command->info("Super-admin credentials  →  {$email}");
+        /* ───── Friendly output ───── */
+        $this->command->info("Super-admin credentials →  {$email}");
     }
 }
