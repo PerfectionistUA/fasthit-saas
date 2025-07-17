@@ -28,7 +28,7 @@ class TenantDemoSeeder extends Seeder
             ['domain' => 'demo.local'],               // ← ключ для «унікальності»
             [
                 'name' => 'Demo Company',
-                'uuid' => $tenantUuid ?? Str::uuid(), // залиш старий, якщо вже був
+                'uuid' => (string) Str::uuid(),
             ]
         );
 

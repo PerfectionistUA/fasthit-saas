@@ -7,10 +7,14 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\PermissionRegistrar;
 
+use function globalTeamId; // helper
+
 class SuperAdminSeeder extends Seeder
 {
     public function run(): void
     {
+        // 1) Отримуємо email та пароль супер-адміна з env-файлу
+        //    або використовуємо значення за замовчуванням
         $email = env('SEED_SUPER_ADMIN_EMAIL', 'admin@example.com');
         $password = env('SEED_SUPER_ADMIN_PASSWORD', 'password');
 
@@ -35,6 +39,6 @@ class SuperAdminSeeder extends Seeder
         }
 
         /* ───── Friendly output ───── */
-        $this->command->info("Super-admin credentials →  {$email}");
+        $this->command->info("✅ Super-admin seeded: {$email}");
     }
 }

@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class Tenant extends Model
@@ -66,12 +68,57 @@ class Tenant extends Model
     // Дочірні орендарі - це ті, які створені під цим орендарем
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(Tenant::class, 'parent_id');
+        return $this->belongsTo(self::class, 'parent_id');
     }
 
-    public function children()
+    public function children(): HasMany
     {
-        return $this->hasMany(Tenant::class, 'parent_id');
+        return $this->hasMany(self::class, 'parent_id');
+    }
+
+    /**
+     * Чи є цей Tenant (this) нащадком $ancestorId?
+     *
+     * @param  int  $ancestorId  ІД потенційного предка
+     * @param  int|null  $maxDepth  Максимальна глибина рекурсії
+     * @param  array</int> $visitedIds   Вузли, що вже відвідали, щоб уникнути циклів
+     */
+    public function isDescendantOf(int $ancestorId, ?int $maxDepth = null, array $visitedIds = []): bool
+    {
+        // якщо не передано — беремо з конфігу
+        $maxDepth = $maxDepth ?? config('tenant.max_hierarchy_depth');
+
+        // 1) сам себе вважаємо нащадком
+        if ($this->id === $ancestorId) {
+            return true;
+        }
+
+        // 2) вийти, якщо досягли глибини або в циклі
+        if ($maxDepth <= 0 || in_array($this->id, $visitedIds, true)) {
+            return false;
+        }
+
+        $visitedIds[] = $this->id;
+
+        // 3) якщо у нас нема батька — значить не нащадок
+        if ($this->parent_id === null) {
+            return false;
+        }
+
+        // 4) якщо батько — це він сам ancestor
+        if ($this->parent_id === $ancestorId) {
+            return true;
+        }
+
+        // 5) інакше піднімаємося вище
+        return $this->parent->isDescendantOf($ancestorId, $maxDepth - 1, $visitedIds);
+
+        // 6) якщо дійшли до цього моменту — значить не нащадок
+        // (можливо, це зайве, але для ясності)
+        Log::debug("Tenant#{$this->id} is not a descendant of Tenant#$ancestorId");
+
+        //
+        return false;
     }
 
     /* ----------  авто-UUID  ---------- */

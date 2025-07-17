@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Tenant;
 use App\Models\User;
+use App\Observers\TenantObserver;
 use App\Observers\UserObserver;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -27,5 +29,6 @@ class EventServiceProvider extends ServiceProvider
     {
         // Реєструємо Observer
         User::observe(UserObserver::class);
+        Tenant::observe(TenantObserver::class);
     }
 }
