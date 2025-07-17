@@ -155,7 +155,8 @@ $user->can('create_post');                         // true/false
 
 ```php
 $this->app[PermissionRegistrar::class]->setPermissionsTeamId($tenantId);
-і не забувай повертати null наприкінці.```
+і не забувай повертати null наприкінці.
+```
 
 При написанні тестів для ролей та дозволів важливо враховувати tenant_id. Використовуйте RefreshDatabase та імітуйте призначення ролей як глобально, так і для конкретних тенантів, а потім перевіряйте стан бази даних за допомогою assertDatabaseHas та assertDatabaseMissing, вказуючи tenant_id
 
