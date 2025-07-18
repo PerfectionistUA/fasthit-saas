@@ -16,17 +16,18 @@ class Tenant extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [ // Заповнювані поля при створенні/оновленні орендаря
-        'name',
-        'domain',
-        'status',
-        'trial_ends_at',
-        'expires_at',
-        'timezone',
-        'locale',
-        'uuid',
-        'parent_id',
-        'created_by',
-        'updated_by',
+        'name', // Назва орендаря
+        'domain', // Домен орендаря (наприклад, tenant.example.com)
+        'plan', // План підписки (наприклад, free, pro, enterprise)
+        'status', // Статус орендаря (наприклад, active, suspended, cancelled)
+        'trial_ends_at', // Дата закінчення trial періоду
+        'expires_at', // Дата закінчення підписки
+        'timezone', // Часовий пояс орендаря (наприклад, Europe/Kyiv)
+        'locale', // Локаль орендаря (наприклад, uk, en)
+        'uuid', // Унікальний ідентифікатор орендаря (UUID)
+        'parent_id', // ID батьківського орендаря (для ієрархії орендарів)
+        'created_by', // ID користувача, який створив орендаря
+        'updated_by', // ID користувача, який оновив орендаря
     ];
 
     protected $casts = [ //
