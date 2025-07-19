@@ -12,7 +12,7 @@ class FreeTenantSeeder extends Seeder
     public function run(): void
     {
         Tenant::updateOrCreate(
-            ['id' => 7],
+            ['id' => config('tenant.free_tenant_id')],
             [
                 'name' => 'Free Organization',
                 'domain' => 'free-org.org',

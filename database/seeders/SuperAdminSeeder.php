@@ -39,7 +39,7 @@ class SuperAdminSeeder extends Seeder
             $user->assignRole('super-admin');
         }
         // Тепер, коли user.id = 1 є, оновлюємо created_by/updated_by для tenant.id = 7
-        Tenant::where('id', 7)
+        Tenant::where('id', config('tenant.free_tenant_id'))
             ->update([
                 'created_by' => $user->id,
                 'updated_by' => $user->id,

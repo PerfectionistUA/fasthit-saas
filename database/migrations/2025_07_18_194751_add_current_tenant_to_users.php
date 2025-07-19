@@ -13,7 +13,7 @@ return new class extends Migration
             // Додаємо NOT NULL поле з дефолтом на Free Organization (id = 7)
             $table->foreignId('current_tenant_id')
                 ->nullable()
-                ->default(7)
+                ->default(config('tenant.free_tenant_id'))
                 ->constrained('tenants')
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
