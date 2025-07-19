@@ -8,19 +8,24 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1) Завжди накочуємо базові сидери прав і ролей
+        // 1) Спочатку права/ролі
         $this->call([
             PermissionSeeder::class,
             RoleSeeder::class,
         ]);
 
-        // 2) Супер-адмін — і для dev, і для тестів
+        // 2) Seed “free”-тенант з id = 7
+        $this->call(FreeTenantSeeder::class);
+
+        // 3) Тепер створюємо Super Admin (user_id = 1), default current_tenant_id = 7 вже прив’язується без помилок
         $this->call(SuperAdminSeeder::class);
 
-        // 3) Демо-тенант + Demo Owner — тільки у локальному або staging
-        //    (щоб у PHPUnit-тестах не створювати зайвих записів)
+        // 4) Локальні/demo дані
         if (app()->environment(['local', 'staging'])) {
-            $this->call(TenantDemoSeeder::class);
+            $this->call([
+                TenantDemoSeeder::class,
+                TenantUserSeeder::class,
+            ]);
         }
     }
 }

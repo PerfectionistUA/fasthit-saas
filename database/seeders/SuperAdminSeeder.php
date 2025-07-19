@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -35,8 +36,14 @@ class SuperAdminSeeder extends Seeder
 
         /* ───── Призначили роль, якщо ще немає ───── */
         if (! $user->hasRole('super-admin')) {
-            $user->assignRole('super-admin');         // у pivot буде tenant_id = 0
+            $user->assignRole('super-admin');
         }
+        // Тепер, коли user.id = 1 є, оновлюємо created_by/updated_by для tenant.id = 7
+        Tenant::where('id', 7)
+            ->update([
+                'created_by' => $user->id,
+                'updated_by' => $user->id,
+            ]);
 
         /* ───── Friendly output ───── */
         $this->command->info("✅ Super-admin seeded: {$email}");
